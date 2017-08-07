@@ -1,6 +1,6 @@
 const datbase = require("../main/datbase.js");
 
-function printVersion(array, total, save) {
+function printAllInfo(array, total, save) {
     let result = '***<没钱赚商店>购物清单***\n';
     for(let item of array) {
         result += '名称：'+ item.name + '，数量：' + item.count + item.unit + '，单价：' + item.price.toFixed(2) + '(元)，小计：' + item.total.toFixed(2) + '(元)\n';
@@ -15,7 +15,7 @@ function printVersion(array, total, save) {
     return result;
 }
 
-function saveTotalPrice(array) {
+function countSaveTotalPrice(array) {
     let save = 0;
     for(let item of array) {
         if(item.discount) {
@@ -25,7 +25,7 @@ function saveTotalPrice(array) {
     return save.toFixed(2);
 }
 
-function finalTotalPrice(array) {
+function countFinalTotalPrice(array) {
     let sum = 0;
     for(let item of array) {
         sum += item.total;
@@ -33,7 +33,7 @@ function finalTotalPrice(array) {
     return sum.toFixed(2);
 }
 
-function itemTotalPrice(array) {
+function countItemTotalPrice(array) {
     for(let item of array) {
         if(item.discount) {
             item.total = item.price*(item.count - item.discount);
@@ -44,30 +44,30 @@ function itemTotalPrice(array) {
     return array;
 }
 
-function total(array) {
+function countTotalInfo(array) {
     let allItemsInfo = datbase.loadAllItems();
     for(let item of allItemsInfo) {
-        if(find(array, item.barcode)) {
-            find(array, item.barcode).name = item.name;
-            find(array, item.barcode).price = item.price;
-            find(array, item.barcode).unit = item.unit;
+        if(findSameEle(array, item.barcode)) {
+            findSameEle(array, item.barcode).name = item.name;
+            findSameEle(array, item.barcode).price = item.price;
+            findSameEle(array, item.barcode).unit = item.unit;
         }
     }
     return array;
 }
 
-function discount(array) {
+function discountItemsInfo(array) {
     let disCountItems = datbase.loadPromotions();
     let discount = 1;
     for(let item of disCountItems[0].barcodes) {
-        if(find(array, item)) {
-            find(array,item).discount = discount;
+        if(findSameEle(array, item)) {
+            findSameEle(array,item).discount = discount;
         }
     }
     return array;
 }
 
-function find(array, element) {
+function findSameEle(array, element) {
     for(let item of array) {
         if(item.ID === element) {
             return item;
@@ -76,19 +76,19 @@ function find(array, element) {
     return false;
 }
 
-function push(arr, str, num) {
+function pushItem(arr, str, num) {
     for(let i=0; i<num; i++) {
         arr.push(str);
     }
     return arr;
 }
 
-function expand(array) {
+function expandArr(array) {
     let expandArr = [];
     for(let item of array) {
         let splitItemArr = item.split("-");
         if(splitItemArr[1]) {
-            expandArr = push(expandArr, splitItemArr[0], splitItemArr[1]);
+            expandArr = pushItem(expandArr, splitItemArr[0], splitItemArr[1]);
         } else {
             expandArr.push(item);
         }
@@ -96,14 +96,14 @@ function expand(array) {
     return expandArr;
 }
 
-function count(array) {
+function countItems(array) {
     let countItems = [];
 
-    array = expand(array);
+    array = expandArr(array);
     for(let item of array) {
         let count =  1;
-        if(find(countItems, item)) {
-            find(countItems, item).count++;
+        if(findSameEle(countItems, item)) {
+            findSameEle(countItems, item).count++;
         } else {
             countItems.push({ID:item, count});
         }
@@ -113,12 +113,12 @@ function count(array) {
 
 module.exports = function main(inputs) {
     let result = [];
-    let countItemsID = count(inputs);
-    let disCountInfo = discount(countItemsID);
-    let totalItemsInfo = total(disCountInfo);
-    let itemFinalInfo = itemTotalPrice(totalItemsInfo);
-    let finalPrice = finalTotalPrice(itemFinalInfo);
-    let savePrice = saveTotalPrice(itemFinalInfo);
-    result = printVersion(totalItemsInfo, finalPrice, savePrice);
+    let countItemsID = countItems(inputs);
+    let disCountInfo = discountItemsInfo(countItemsID);
+    let totalItemsInfo = countTotalInfo(disCountInfo);
+    let itemFinalInfo = countItemTotalPrice(totalItemsInfo);
+    let finalPrice = countFinalTotalPrice(itemFinalInfo);
+    let savePrice = countSaveTotalPrice(itemFinalInfo);
+    result = printAllInfo(totalItemsInfo, finalPrice, savePrice);
     console.log(result);
 };
