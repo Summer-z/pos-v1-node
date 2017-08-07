@@ -69,7 +69,7 @@ function discountItemsInfo(array) {
 
 function findSameEle(array, element) {
     for(let item of array) {
-        if(item.ID === element) {
+        if(item.barcode === element) {
             return item;
         }
     }
@@ -98,14 +98,13 @@ function expandArr(array) {
 
 function countItems(array) {
     let countItems = [];
-
     array = expandArr(array);
     for(let item of array) {
         let count =  1;
         if(findSameEle(countItems, item)) {
             findSameEle(countItems, item).count++;
         } else {
-            countItems.push({ID:item, count});
+            countItems.push({barcode:item, count});
         }
     }
     return countItems;
@@ -113,8 +112,8 @@ function countItems(array) {
 
 module.exports = function main(inputs) {
     let result = [];
-    let countItemsID = countItems(inputs);
-    let disCountInfo = discountItemsInfo(countItemsID);
+    let items = countItems(inputs);
+    let disCountInfo = discountItemsInfo(items);
     let totalItemsInfo = countTotalInfo(disCountInfo);
     let itemFinalInfo = countItemTotalPrice(totalItemsInfo);
     let finalPrice = countFinalTotalPrice(itemFinalInfo);
