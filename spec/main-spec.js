@@ -1,4 +1,4 @@
-const main = require('../main/main.js');
+const main = require('../main/main_2.js');
 const datbase = require("../main/datbase.js");
 
 describe('pos', function () {
@@ -24,7 +24,7 @@ describe('pos', function () {
 
         spyOn(console, 'log');
 
-        result = main(inputs);
+        main(inputs);
 
         const expectText =
             '***<没钱赚商店>购物清单***\n' +
@@ -41,5 +41,6 @@ describe('pos', function () {
             '**********************';
 
         expect(console.log).toHaveBeenCalledWith(expectText);
+        //expect(result).toEqual(expectText);
     });
 });
